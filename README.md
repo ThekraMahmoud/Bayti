@@ -1,5 +1,4 @@
 
-```text
 # BAYTI
 
 ## 1. Project Overview
