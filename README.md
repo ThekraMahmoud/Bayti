@@ -1,604 +1,626 @@
 
-## Database Relationships + API Integration
-
-```markdown
-# Database Relationships and API Integration
-
-BAYTI uses connected entities to manage the complete construction lifecycle.
-
-The main relationship is:
-
 ```text
-USER
-  |
-  | 1 : N
-  v
-LANDS
-  |
-  | 1 : N
-  v
-CONSTRUCTION_PROJECT
-  |
-  | 1 : N
-  v
-OFFERS
-  |
-  | N : 1
-  v
-CONTRACTORS
+# BAYTI
+
+## 1. Project Overview
+
+## 2. Main Features
+
+### 2.1 User & Account Verification
+- Feature description
+- API
+- Request
+- Response
+- Validation
+- Business Logic
+- Database relationship
+
+### 2.2 Land Management
+- Feature description
+- API
+- Request
+- Response
+- Validation
+- Business Logic
+- Database relationship
+
+### 2.3 Construction Project Management
+- Feature description
+- API
+- Request
+- Response
+- Validation
+- Business Logic
+- Database relationship
+
+### 2.4 Open Construction Projects
+...
+
+### 2.5 Contractor Offers
+...
+
+### 2.6 Accept Contractor Offer
+...
+
+### 2.7 Construction Phases
+...
+
+### 2.8 Start Construction Phase
+...
+
+### 2.9 Complete Construction Phase
+...
+
+### 2.10 Material Management
+...
+
+### 2.11 Purchased Materials
+...
+
+### 2.12 Used Materials
+...
+
+### 2.13 Surplus Materials Marketplace
+...
+
+### 2.14 Close Surplus Listing
+...
+
+### 2.15 Reopen Surplus Listing
+...
+
+### 2.16 Transfer Surplus Materials
+...
+
+### 2.17 Purchase Surplus Materials
+...
+
+### 2.18 Surplus Payment
+...
+
+### 2.19 Admin Management
+...
+
+### 2.20 Email Notifications
+...
+
+### 2.21 AI Features
+...
+
+## 3. Complete System Workflow
+
+## 4. Database Relationships
+
+## 5. Controller → Service → Repository → Database
+
+## 6. API Summary
+
+## 7. Validation & Business Rules
+
+## 8. Status Transitions
+
+## 9. Technologies
+
+## 10. Project Architecture
+
+## 11. How to Run
+
+## 12. Testing with Postman
+
+## 13. Security
+
+## 14. Future Improvements
 ```
 
-After an offer is accepted:
+لكن بما أنك تبين **"كامل منظم"**، أنا أنصح أن ما نكرر الـAPI مرة ثانية في آخر README. يعني كل Feature يكون مكتمل في مكانه.
 
-```text
-OFFERS
-  |
-  | 1 : N
-  v
-CONSTRUCTION_PHASES
-  |
-  | 1 : N
-  v
-MATERIALS
-```
-
-After construction is completed:
-
-```text
-MATERIALS
-  |
-  | surplusQuantity > 0
-  v
-SURPLUS_ITEMS
-  |
-  | 1 : N
-  v
-SURPLUS_ORDERS
-  |
-  | N : 1
-  v
-USER
-```
+مثلاً:
 
 ---
 
-# Endpoint → Controller → Service → Repository → Database
+# 2. Main Features
 
-Each API operation follows the same backend flow:
+## 2.1 User & Account Verification
 
-```text
-HTTP Request
-      |
-      v
-Controller
-      |
-      v
-Service
-      |
-      v
-Repository
-      |
-      v
-Database
-```
+### Description
 
-The Service layer is responsible for applying the business rules before changing the database.
+BAYTI supports account verification for both users and contractors. Users can verify their accounts directly, while contractors require additional admin verification of their license information.
 
----
+### API
 
-# 1. Verify Account
+**POST**
 
 ```text
-POST /api/v1/auth/verify
-        |
-        v
-AuthController
-        |
-        v
-Auth/User Service
-        |
-        +---- Validate verification code
-        |
-        +---- Determine user type
-        |
-        +---- Update verification status
-        |
-        v
-USER / CONTRACTOR
+/api/v1/auth/verify
 ```
 
-### Flow
+### Request
+
+```json
+{
+  "verificationCode": "123456"
+}
+```
+
+### User Response
+
+```json
+{
+  "status": "ACCEPTED"
+}
+```
+
+### Contractor Response
+
+```json
+{
+  "status": "PENDING_ADMIN_VERIFICATION"
+}
+```
+
+### Business Logic
+
+1. The system receives the verification code.
+2. The code is validated.
+3. If the account belongs to a user:
+   - The account becomes `ACCEPTED`.
+   - The user can proceed to login.
+4. If the account belongs to a contractor:
+   - Verification succeeds.
+   - The contractor remains pending until the administrator verifies the license.
+
+### Database Relationship
 
 ```text
 User
- |
- | Verification Code
- v
-POST /api/v1/auth/verify
- |
- v
-Validate Code
- |
- +---- Invalid
- |       ↓
- |     Reject
- |
- +---- Valid
-         ↓
-      ACCEPTED
-         ↓
-       Login
-```
+  │
+  └── Account Verification
 
-For contractors:
-
-```text
-Valid Code
-    ↓
-PENDING_ADMIN_VERIFICATION
-    ↓
-Admin verifies License Number
-    ↓
-ACCEPTED
-    ↓
-Login
+Contractor
+  │
+  └── Account Verification
+          │
+          └── Admin License Verification
 ```
 
 ---
 
-# 2. Add Land
+# 2.2 Land Management
+
+### Description
+
+A verified user can add and manage their land before creating a construction project.
+
+### API
+
+**POST**
 
 ```text
-POST /api/v1/land/add
-        |
-        v
-LandsController
-        |
-        v
-LandsService
-        |
-        +---- Validate Land Data
-        |
-        +---- Get Authenticated User
-        |
-        +---- Link Land to User
-        |
-        v
-LandsRepository
-        |
-        v
-LANDS TABLE
+/api/v1/land/add
+```
+
+### Request
+
+```json
+{
+  "area": 500,
+  "city": "Dammam"
+}
+```
+
+### Response
+
+```json
+{
+  "message": "Land added successfully"
+}
+```
+
+### Validation
+
+- Land data must be valid.
+- The authenticated user must exist.
+- The land is linked to the authenticated user.
+
+### Business Logic
+
+```text
+Authenticated User
+        ↓
+Validate Land Data
+        ↓
+Create Land
+        ↓
+Link Land to User
+        ↓
+Save Land
 ```
 
 ### Database Relationship
 
 ```text
-USER
-  |
-  | user_id
-  v
-LANDS
+User 1 ──────── * Lands
 ```
-
-### Flow
-
-```text
-Authenticated User
-        ↓
-Add Land
-        ↓
-Validate Data
-        ↓
-Link Land → User
-        ↓
-Save Land
-```
-
-After the land is successfully created, it can be used to create a construction project.
 
 ---
 
-# 3. Create Construction Project
+# 2.3 Construction Project Management
+
+### Description
+
+After adding a land, the user can create a construction project associated with that land.
+
+### API
+
+**POST**
 
 ```text
-POST /api/v1/construction-project/add
-        |
-        v
-ConstructionProjectController
-        |
-        v
-ConstructionProjectService
-        |
-        +---- Check Land Exists
-        |
-        +---- Check Land Ownership
-        |
-        +---- Create Project
-        |
-        +---- Link User
-        |
-        +---- Link Land
-        |
-        v
-ConstructionProjectRepository
-        |
-        v
-CONSTRUCTION_PROJECT TABLE
+/api/v1/construction-project/add
 ```
 
-### Database Relationships
+### Request
 
-```text
-USER
-  |
-  | user_id
-  v
-CONSTRUCTION_PROJECT
-  |
-  | land_id
-  v
-LANDS
+```json
+{
+  "landId": 1,
+  "projectData": "..."
+}
 ```
 
-### Business Flow
+### Response
+
+```json
+{
+  "message": "Construction project created successfully"
+}
+```
+
+### Validation
+
+The system verifies:
+
+- Land exists.
+- Land belongs to the authenticated user.
+- Project data is valid.
+
+### Business Logic
 
 ```text
-Land ID + Project Data
-        ↓
-Check Land Exists
-        ↓
-Check User Owns Land
-        ↓
+User
+ ↓
+Select Land
+ ↓
+Check Land Ownership
+ ↓
 Create Construction Project
-        ↓
-Link:
-    User
-    +
-    Land
-        ↓
+ ↓
+Link Project to User
+ ↓
+Link Project to Land
+ ↓
 Save Project
 ```
 
-The project can now become available to contractors.
+### Database Relationship
+
+```text
+User
+ │
+ └── Lands
+       │
+       └── ConstructionProject
+```
 
 ---
 
-# 4. View Open Projects
+# 2.4 Open Construction Projects
+
+### Description
+
+Contractors can view construction projects that are currently available for offers.
+
+### API
+
+**GET**
 
 ```text
-GET /api/v1/construction-project/open
-        |
-        v
-ConstructionProjectController
-        |
-        v
-ConstructionProjectService
-        |
-        v
-ConstructionProjectRepository
-        |
-        v
-CONSTRUCTION_PROJECT TABLE
+/api/v1/construction-project/open
 ```
 
-The repository retrieves projects where:
+### Request
 
-```text
-status = OPEN
+No request body.
+
+### Response
+
+```json
+[
+  {
+    "projectId": 1,
+    "status": "OPEN"
+  }
+]
 ```
 
-### Flow
+### Business Logic
+
+The system retrieves projects whose status is:
 
 ```text
-Contractor
-    ↓
-GET Open Projects
-    ↓
-Query CONSTRUCTION_PROJECT
-    ↓
-Filter status = OPEN
-    ↓
-Return Available Projects
-```
-
-This endpoint is the connection between the project owner workflow and the contractor workflow.
-
-```text
-USER
- ↓
-LAND
- ↓
-CONSTRUCTION_PROJECT
- ↓
 OPEN
- ↓
-CONTRACTOR
+```
+
+Only open projects are returned to contractors.
+
+### Database Flow
+
+```text
+ConstructionProject
+        ↓
+Filter status = OPEN
+        ↓
+Return available projects
 ```
 
 ---
 
-# 5. Submit Offer
+# 2.5 Contractor Offers
+
+### Description
+
+A verified contractor can submit an offer for an open construction project.
+
+### API
+
+**POST**
 
 ```text
-POST /api/v1/offers/add
-        |
-        v
-OffersController
-        |
-        v
-OffersService
-        |
-        +---- Check Project Exists
-        |
-        +---- Check Project Status = OPEN
-        |
-        +---- Get Contractor
-        |
-        +---- Create Offer
-        |
-        +---- Link Offer → Project
-        |
-        +---- Link Offer → Contractor
-        |
-        v
-OffersRepository
-        |
-        v
-OFFERS TABLE
+/api/v1/offers/add
 ```
 
-### Database Relationships
+### Request
 
-```text
-CONSTRUCTION_PROJECT
-        |
-        | project_id
-        v
-      OFFERS
-        ^
-        |
-        | contractor_id
-        |
-  CONTRACTORS
+```json
+{
+  "projectId": 1,
+  "price": 250000
+}
 ```
 
-### Flow
+### Response
+
+```json
+{
+  "message": "Offer submitted successfully"
+}
+```
+
+### Validation
+
+The system checks:
+
+- Project exists.
+- Project status is `OPEN`.
+- Contractor is valid.
+- Offer is linked to the contractor.
+- Offer is linked to the construction project.
+
+### Database Relationship
 
 ```text
 Contractor
-    ↓
-View OPEN Projects
-    ↓
-Select Project
-    ↓
-Submit Offer
-    ↓
-Validate Project
-    ↓
-Create Offer
-    ↓
-Link:
-    Offer → Project
-    Offer → Contractor
-    ↓
-Save Offer
+     │
+     └── Offer
+            │
+            └── ConstructionProject
 ```
-
-The offer cannot be created if the project does not exist or is not `OPEN`.
 
 ---
 
-# 6. Accept Offer
+# 2.6 Accept Contractor Offer
+
+### Description
+
+The land/project owner can select one of the submitted contractor offers.
+
+### API
 
 ```text
 PUT /api/v1/offers/accept/{offerId}
-        |
-        v
-OffersController
-        |
-        v
-OffersService
-        |
-        +---- Check Project Ownership
-        |
-        +---- Check Offer
-        |
-        +---- Accept Offer
-        |
-        +---- Assign Contractor
-        |
-        v
-OffersRepository
-        |
-        v
-OFFERS
-        |
-        v
-CONSTRUCTION_PROJECT
 ```
 
-### Flow
+> The exact path variable format should match the implemented controller.
+
+### Request
 
 ```text
-Land Owner
-    ↓
+offerId
+```
+
+### Response
+
+```json
+{
+  "message": "Offer accepted successfully"
+}
+```
+
+### Business Logic
+
+```text
+Project Owner
+      ↓
 Select Offer
-    ↓
+      ↓
+Validate Offer
+      ↓
 Check Project Ownership
-    ↓
-Check Offer
-    ↓
+      ↓
 Accept Offer
-    ↓
+      ↓
 Assign Contractor
-    ↓
-Project moves to execution
+      ↓
+Move Project to Execution
 ```
 
 ### Relationship
 
 ```text
-USER
-  |
-  | owns
-  v
-CONSTRUCTION_PROJECT
-  |
-  | receives
-  v
-OFFERS
-  |
-  | submitted by
-  v
-CONTRACTORS
-```
-
-After acceptance:
-
-```text
-ACCEPTED OFFER
-      ↓
-ASSIGNED CONTRACTOR
-      ↓
-CONSTRUCTION PHASES
+User
+ │
+ └── ConstructionProject
+          │
+          └── Offer
+                │
+                └── Contractor
 ```
 
 ---
 
-# 7. Create Construction Phase
+# 2.7 Construction Phase Management
+
+### Description
+
+After accepting an offer, construction phases can be created for the project.
+
+### Data
+
+Each phase contains information such as:
 
 ```text
-Offer ID
-   |
-   v
-ConstructionPhasesController
-   |
-   v
-ConstructionPhasesService
-   |
-   +---- Check Offer Exists
-   |
-   +---- Check Offer = ACCEPTED
-   |
-   +---- Check Duplicate Phase
-   |
-   v
-ConstructionPhasesRepository
-   |
-   v
-CONSTRUCTION_PHASES TABLE
+Phase
+- phase name
+- status
+- start date
+- actual end date
+- offer/project relationship
 ```
 
-### Relationship
+### Initial Status
 
 ```text
-OFFERS
-  |
-  | offer_id
-  v
-CONSTRUCTION_PHASES
+NOT_DONE
 ```
 
-### Initial State
+### Initial Dates
 
 ```text
-status = NOT_DONE
 startDate = null
 actualEndDate = null
 ```
 
+### Business Rules
+
+- Offer must exist.
+- Offer must have status `ACCEPTED`.
+- The same phase name cannot be duplicated for the same offer.
+
+### Flow
+
+```text
+Accepted Offer
+      ↓
+Create Phase
+      ↓
+NOT_DONE
+      ↓
+Start Phase
+      ↓
+IN_PROGRESS
+      ↓
+Complete Phase
+      ↓
+COMPLETED
+```
+
 ---
 
-# 8. Start Construction Phase
+# 2.8 Start Construction Phase
+
+### Request
 
 ```text
 contractorId
 offerId
 phaseId
-        |
-        v
-ConstructionPhasesController
-        |
-        v
-ConstructionPhasesService
-        |
-        +---- Offer Exists
-        |
-        +---- Contractor Owns Offer
-        |
-        +---- Phase Exists
-        |
-        +---- Phase Belongs to Offer
-        |
-        +---- Phase = NOT_DONE
-        |
-        +---- Change Status
-        |
-        +---- Set startDate
-        |
-        v
-CONSTRUCTION_PHASES
 ```
+
+### Business Rules
+
+The system checks:
+
+1. Offer exists.
+2. Contractor owns the offer.
+3. Phase exists.
+4. Phase belongs to the same offer.
+5. Phase status is `NOT_DONE`.
 
 ### Status Transition
 
 ```text
-NOT_DONE
-    |
-    | Start
-    v
-IN_PROGRESS
+NOT_DONE → IN_PROGRESS
 ```
 
-### Database Update
+### Date
 
 ```text
-status = IN_PROGRESS
 startDate = Today
 ```
 
 ---
 
-# 9. Material Purchase
+# 2.9 Complete Construction Phase
+
+### Request
 
 ```text
 contractorId
-materialsId
-count
-        |
-        v
-MaterialsController
-        |
-        v
-MaterialsService
-        |
-        +---- Check count > 0
-        |
-        +---- Check Phase is active
-        |
-        +---- Increase purchasedQuantity
-        |
-        +---- Calculate surplusQuantity
-        |
-        +---- Check plannedQuantity
-        |
-        +---- Send Email if exceeded
-        |
-        v
-MaterialsRepository
-        |
-        v
-MATERIALS TABLE
+offerId
+phaseId
 ```
 
-### Calculation
+### Business Rules
+
+The system checks:
+
+1. Offer exists.
+2. Contractor owns the offer.
+3. Phase exists.
+4. Phase belongs to the offer.
+5. Phase status is `IN_PROGRESS`.
+
+### Status Transition
 
 ```text
+IN_PROGRESS → COMPLETED
+```
+
+### Date
+
+```text
+actualEndDate = Today
+```
+
+---
+
+# 2.10 Material Management
+
+Construction materials are connected to the construction project and are managed by the contractor during execution.
+
+The system tracks:
+
+```text
+plannedQuantity
 purchasedQuantity
-        -
 usedQuantity
-        =
 surplusQuantity
+```
+
+### Formula
+
+```text
+surplusQuantity =
+purchasedQuantity - usedQuantity
 ```
 
 Example:
@@ -607,554 +629,527 @@ Example:
 Purchased = 130
 Used      = 20
 
+Surplus = 130 - 20
+        = 110
+```
+
+---
+
+# 2.11 Add Purchased Materials
+
+### Request
+
+```text
+contractorId
+materialId
+count
+```
+
+### Validation
+
+- `count > 0`
+- Phase must not be closed/completed.
+- Contractor must be authorized for the project.
+
+### Business Logic
+
+```text
+purchasedQuantity += count
+
+surplusQuantity =
+purchasedQuantity - usedQuantity
+```
+
+If the purchased quantity exceeds the planned quantity, the project owner receives an email notification.
+
+Example:
+
+```text
+Previous Purchased = 100
+New Purchase       = 30
+
+Purchased = 130
+Used      = 20
+
 Surplus = 110
 ```
 
 ---
 
-# 10. Material Usage
+# 2.12 Use Construction Materials
+
+### Request
 
 ```text
 contractorId
-materialsId
+materialId
 count
-        |
-        v
-MaterialsController
-        |
-        v
-MaterialsService
-        |
-        +---- Check count > 0
-        |
-        +---- Check Phase is active
-        |
-        +---- Check:
-        |     usedQuantity + count
-        |     <= purchasedQuantity
-        |
-        +---- Increase usedQuantity
-        |
-        +---- Recalculate surplus
-        |
-        v
-MaterialsRepository
-        |
-        v
-MATERIALS TABLE
+```
+
+### Validation
+
+```text
+count > 0
+```
+
+The system also verifies:
+
+```text
+count + usedQuantity <= purchasedQuantity
+```
+
+### Business Logic
+
+```text
+usedQuantity += count
+
+surplusQuantity =
+purchasedQuantity - usedQuantity
 ```
 
 Example:
 
 ```text
 Purchased = 130
-Used      = 60
+Previous Used = 20
+New Used = 40
 
-Surplus = 70
+Used = 60
+
+Surplus = 130 - 60
+        = 70
 ```
 
 ---
 
-# 11. Complete Construction Phase
+# 2.13 Surplus Materials Marketplace
+
+When a construction phase is completed, remaining materials can be offered through the surplus marketplace.
+
+### Requirements
+
+- Phase must be `COMPLETED`.
+- `surplusQuantity > 0`.
+- Only one listing can exist for the same material from the same seller.
+- Seller must be the project owner.
+
+### Listing Data
 
 ```text
-contractorId
-offerId
-phaseId
-        |
-        v
-ConstructionPhasesController
-        |
-        v
-ConstructionPhasesService
-        |
-        +---- Check Offer
-        |
-        +---- Check Contractor Ownership
-        |
-        +---- Check Phase
-        |
-        +---- Check Phase → Offer
-        |
-        +---- Check Phase = IN_PROGRESS
-        |
-        +---- Set COMPLETED
-        |
-        +---- Set actualEndDate
-        |
-        v
-CONSTRUCTION_PHASES
+Material
+Quantity
+Material Type
+Seller
+Status
 ```
 
-### Status Transition
+### Initial Status
 
 ```text
-NOT_DONE
-    ↓
-IN_PROGRESS
-    ↓
-COMPLETED
-```
-
-Materials are managed while the phase is active, then the completed phase allows the remaining material surplus to move into the surplus workflow.
-
----
-
-# 12. Create Surplus Listing
-
-```text
-surplus-items
-        |
-        v
-SurplusItemsController
-        |
-        v
-SurplusItemsService
-        |
-        +---- Check Phase = COMPLETED
-        |
-        +---- Check surplusQuantity > 0
-        |
-        +---- Check Seller owns Project
-        |
-        +---- Check duplicate listing
-        |
-        +---- Set quantity
-        |
-        +---- Set material type
-        |
-        +---- Set AVAILABLE
-        |
-        v
-SurplusItemsRepository
-        |
-        v
-SURPLUS_ITEMS TABLE
-```
-
-### Relationship
-
-```text
-MATERIALS
-    |
-    | material_id
-    v
-SURPLUS_ITEMS
-    |
-    | seller_id
-    v
-USER
+AVAILABLE
 ```
 
 ### Flow
 
 ```text
-COMPLETED PHASE
-       ↓
-surplusQuantity > 0
-       ↓
-Create Listing
-       ↓
+Completed Phase
+      ↓
+Calculate Surplus
+      ↓
+Create Surplus Listing
+      ↓
 AVAILABLE
 ```
 
 ---
 
-# 13. Close Surplus Listing
+# 2.14 Close Surplus Listing
+
+### Request
 
 ```text
 userId
-surplusItemsId
-        |
-        v
-SurplusItemsController
-        |
-        v
-SurplusItemsService
-        |
-        +---- Check Listing
-        |
-        +---- Cannot be SOLD
-        |
-        +---- Cannot already be CLOSED
-        |
-        +---- AVAILABLE → CLOSED
-        |
-        v
-SURPLUS_ITEMS
+surplusItemId
+```
+
+### Business Rules
+
+Cannot close:
+
+```text
+SOLD
+```
+
+Cannot close a listing that is already:
+
+```text
+CLOSED
+```
+
+### Status Transition
+
+```text
+AVAILABLE → CLOSED
 ```
 
 ---
 
-# 14. Reopen Surplus Listing
+# 2.15 Reopen Surplus Listing
+
+### Request
 
 ```text
 userId
-surplusItemsId
-        |
-        v
-SurplusItemsController
-        |
-        v
-SurplusItemsService
-        |
-        +---- Check Listing
-        |
-        +---- Cannot be SOLD
-        |
-        +---- Cannot already be AVAILABLE
-        |
-        +---- CLOSED → AVAILABLE
-        |
-        v
-SURPLUS_ITEMS
+surplusItemId
+```
+
+### Business Rules
+
+Cannot reopen:
+
+```text
+SOLD
+```
+
+Cannot reopen:
+
+```text
+AVAILABLE
+```
+
+A closed listing can be reopened.
+
+### Status Transition
+
+```text
+CLOSED → AVAILABLE
 ```
 
 ---
 
-# 15. Transfer Surplus
+# 2.16 Transfer Surplus Materials
+
+A project owner can transfer surplus quantity to another material owned by the same owner.
+
+### Request
 
 ```text
 userId
-surplusItemsId
-materialsId
+surplusItemId
+materialId
 quantity
-        |
-        v
-SurplusItemsController
-        |
-        v
-SurplusItemsService
-        |
-        +---- Check Listing != SOLD
-        |
-        +---- Check Material Types Match
-        |
-        +---- Check quantity > 0
-        |
-        +---- Check quantity <= surplus
-        |
-        +---- Check Target Material Owner
-        |
-        +---- Update Target Material
-        |
-        +---- Update Surplus
-        |
-        v
-+----------------------+
-|                      |
-v                      v
-MATERIALS          SURPLUS_ITEMS
 ```
 
-### Transfer Effect
+### Validation
+
+- Listing cannot be `SOLD`.
+- Target material type must match surplus material type.
+- Quantity must be greater than zero.
+- Quantity cannot exceed available surplus.
+- Target material must belong to the same owner.
+
+### Business Logic
 
 ```text
 Target Material
-    |
-    +--> purchasedQuantity increases
-    |
-    +--> surplusQuantity recalculated
-
+      ↓
+Increase purchasedQuantity
+      ↓
+Recalculate surplusQuantity
 
 Surplus Listing
-    |
-    +--> quantity decreases
-```
-
-If quantity becomes zero:
-
-```text
-AVAILABLE
-    ↓
+      ↓
+Decrease available quantity
+      ↓
+If quantity = 0
+      ↓
 SOLD
 ```
 
 ---
 
-# 16. Create Surplus Order
+# 2.17 Purchase Surplus Materials
+
+A user can purchase available surplus materials from another user.
+
+### Request
 
 ```text
-surplus-orders
-        |
-        v
-SurplusOrdersController
-        |
-        v
-SurplusOrdersService
-        |
-        +---- Buyer != Seller
-        |
-        +---- Listing = AVAILABLE
-        |
-        +---- Requested Quantity <= Available
-        |
-        +---- Create Order
-        |
-        +---- paid = false
-        |
-        v
-SurplusOrdersRepository
-        |
-        v
-SURPLUS_ORDERS TABLE
+surplusItemId
+quantity
 ```
 
-### Relationship
+### Business Rules
+
+- User cannot purchase their own surplus.
+- Listing must be `AVAILABLE`.
+- Requested quantity must not exceed available quantity.
+
+### Order
+
+A new surplus order is created with:
 
 ```text
-SURPLUS_ITEMS
-      |
-      | surplus_item_id
-      v
-SURPLUS_ORDERS
-      |
-      | buyer_id
-      v
-USER
+paid = false
+```
+
+### Flow
+
+```text
+Buyer
+ ↓
+Select AVAILABLE Surplus
+ ↓
+Check Quantity
+ ↓
+Create Order
+ ↓
+paid = false
 ```
 
 ---
 
-# 17. Pay Surplus Order
+# 2.18 Pay for Surplus Order
+
+### Request
 
 ```text
 buyerId
 surplusOrderId
-        |
-        v
-SurplusOrdersController
-        |
-        v
-SurplusOrdersService
-        |
-        +---- Check Order belongs to Buyer
-        |
-        +---- Check paid = false
-        |
-        +---- Re-check available quantity
-        |
-        +---- Deduct surplus quantity
-        |
-        +---- Update Order
-        |
-        +---- paid = true
-        |
-        +---- Send Email
-        |
-        v
-+-----------------------+
-|                       |
-v                       v
-SURPLUS_ORDERS      SURPLUS_ITEMS
 ```
 
-### Final Flow
+### Validation
+
+The system checks:
+
+- Order belongs to the buyer.
+- Order has not already been paid.
+- Surplus quantity is still available.
+
+### Payment Logic
+
+After successful payment:
 
 ```text
-Order
-  ↓
-Payment
-  ↓
-Validate Buyer
-  ↓
-Validate Quantity
-  ↓
-Deduct Surplus
-  ↓
+Available Quantity -= Order Quantity
+```
+
+If quantity becomes zero:
+
+```text
+AVAILABLE → SOLD
+```
+
+And:
+
+```text
 paid = true
-  ↓
-Quantity = 0 ?
-  |
-  +---- YES → SOLD
-  |
-  +---- NO  → AVAILABLE
-  ↓
+```
+
+### Notifications
+
+An email is sent to:
+
+```text
+Seller
+Buyer
+```
+
+### Complete Flow
+
+```text
+Buyer
+ ↓
+Create Order
+ ↓
+paid = false
+ ↓
+Payment
+ ↓
+Re-check Availability
+ ↓
+Subtract Quantity
+ ↓
+Update paid = true
+ ↓
+If quantity = 0 → SOLD
+ ↓
 Send Email
-  ↓
-Buyer + Seller
 ```
 
 ---
 
-# Complete Integrated Flow
+# 2.19 Admin Management
+
+The administrator is responsible for platform-level management and contractor verification.
+
+### Main Responsibilities
+
+- Manage users.
+- Monitor the platform.
+- Verify contractors.
+- Verify contractor license information.
+- Approve contractor accounts.
+
+### Contractor Verification Flow
 
 ```text
-                    USER
-                     |
-                     | Verify
-                     v
-                  AUTH
-                     |
-                     v
-                  LANDS
-                     |
-                     | Add Land
-                     v
-          CONSTRUCTION_PROJECT
-                     |
-                     | status = OPEN
-                     v
-              OPEN PROJECTS
-                     |
-                     | Contractor views
-                     v
-                CONTRACTOR
-                     |
-                     | Submit Offer
-                     v
-                  OFFERS
-                     |
-                     | Owner accepts
-                     v
-             ACCEPTED OFFER
-                     |
-                     | Contractor assigned
-                     v
-          CONSTRUCTION_PHASES
-                     |
-                     | Start
-                     v
-                IN_PROGRESS
-                     |
-             +-------+-------+
-             |               |
-             v               v
-        PURCHASE          USE
-        MATERIAL          MATERIAL
-             |               |
-             +-------+-------+
-                     |
-                     v
-                 MATERIALS
-                     |
-                     | purchased - used
-                     v
-              SURPLUS QUANTITY
-                     |
-                     | Complete Phase
-                     v
-                COMPLETED
-                     |
-                     | Create Listing
-                     v
-              SURPLUS_ITEMS
-                     |
-                     | AVAILABLE
-             +-------+-------+
-             |               |
-             v               v
-           CLOSED          ORDER
-             |               |
-             | Reopen        | Pay
-             |               v
-             +----------> AVAILABLE
-                             |
-                             v
-                            SOLD
+Contractor Registration
+        ↓
+Verification Code
+        ↓
+Code Accepted
+        ↓
+PENDING_ADMIN_VERIFICATION
+        ↓
+Admin Checks License Number
+        ↓
+ACCEPTED
+        ↓
+Contractor Can Login
 ```
 
-# Controller → Service → Repository → Database
+---
+
+# 2.20 Email Notifications
+
+BAYTI uses email notifications for important business events.
+
+Examples include:
+
+### Purchased Quantity Exceeds Planned Quantity
 
 ```text
-UserController
-      ↓
-UserService
-      ↓
-UserRepository
-      ↓
-USER
-
-
-LandsController
-      ↓
-LandsService
-      ↓
-LandsRepository
-      ↓
-LANDS
-
-
-ConstructionProjectController
-      ↓
-ConstructionProjectService
-      ↓
-ConstructionProjectRepository
-      ↓
-CONSTRUCTION_PROJECT
-
-
-OffersController
-      ↓
-OffersService
-      ↓
-OffersRepository
-      ↓
-OFFERS
-
-
-ConstructionPhasesController
-      ↓
-ConstructionPhasesService
-      ↓
-ConstructionPhasesRepository
-      ↓
-CONSTRUCTION_PHASES
-
-
-MaterialsController
-      ↓
-MaterialsService
-      ↓
-MaterialsRepository
-      ↓
-MATERIALS
-
-
-SurplusItemsController
-      ↓
-SurplusItemsService
-      ↓
-SurplusItemsRepository
-      ↓
-SURPLUS_ITEMS
-
-
-SurplusOrdersController
-      ↓
-SurplusOrdersService
-      ↓
-SurplusOrdersRepository
-      ↓
-SURPLUS_ORDERS
+Contractor purchases more material
+        ↓
+Purchased > Planned
+        ↓
+Send Email to Project Owner
 ```
 
-# Final Entity Relationship Flow
+### Surplus Payment
+
+```text
+Payment Completed
+        ↓
+Send Email to Buyer
+        ↓
+Send Email to Seller
+```
+
+---
+
+# 2.21 AI Features
+
+The project also contains an AI service/controller layer integrated with the construction-project and land-related modules.
+
+The AI functionality is implemented through the project's AI service and related repositories.
+
+The exact AI request/response format should be documented directly from the implemented `AIController` and `AIService` methods rather than inventing an API contract.
+
+---
+
+# 3. Complete BAYTI Workflow
+
+The entire platform works as one connected workflow:
 
 ```text
 USER
- |
- +----> LANDS
- |          |
- |          +----> CONSTRUCTION_PROJECT
- |                       |
- |                       +----> OFFERS
- |                                  |
- |                    +-------------+-------------+
- |                    |                           |
- |                    v                           v
- |               CONTRACTORS             CONSTRUCTION_PHASES
- |                                                |
- |                                                v
- |                                            MATERIALS
- |                                                |
- |                                                v
- |                                          SURPLUS_ITEMS
- |                                                |
- |                                                v
- +---------------------------------------- SURPLUS_ORDERS
+ │
+ ├── Verify Account
+ │
+ ├── Add Land
+ │
+ └── Create Construction Project
+             │
+             ↓
+          OPEN
+             │
+             ↓
+       Contractors
+             │
+             └── Submit Offers
+                     │
+                     ↓
+              Project Owner
+                     │
+                     └── Accept Offer
+                             │
+                             ↓
+                       Assign Contractor
+                             │
+                             ↓
+                    Create Construction Phases
+                             │
+                             ↓
+                         NOT_DONE
+                             │
+                             ↓
+                        IN_PROGRESS
+                             │
+                             ├── Purchase Materials
+                             │
+                             ├── Use Materials
+                             │
+                             └── Calculate Surplus
+                             │
+                             ↓
+                         COMPLETED
+                             │
+                             ↓
+                    Create Surplus Listing
+                             │
+                    ┌────────┴─────────┐
+                    ↓                  ↓
+                Sell/Buy            Transfer
+                    │
+                    ↓
+                 Order
+                    │
+                    ↓
+                Payment
+                    │
+                    ↓
+             Email Notifications
 ```
 
-This means every major API endpoint is connected to the next step in the business process rather than being documented as an isolated endpoint.
+---
+
+# 4. Database Relationship Flow
+
+```text
+User
+ │
+ ├─────────────── Lands
+ │                    │
+ │                    └──── ConstructionProject
+ │                                  │
+ │                                  └──── Offers
+ │                                          │
+ │                                          └──── Contractor
+ │
+ └─────────────── SurplusItems
+                         │
+                         └──── SurplusOrders
 ```
+
+And for construction execution:
+
+```text
+ConstructionProject
+        │
+        └── Offer
+              │
+              ├── Contractor
+              │
+              └── ConstructionPhases
+                        │
+                        └── Materials
+                              │
+                              └── SurplusItems
+                                    │
+                                    └── SurplusOrders
+```
+
+---
 
