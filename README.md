@@ -45,8 +45,6 @@ Bayti is a digital platform designed to simplify the home-building journey by co
 - Pay for surplus orders
 - Email buyer and seller after successful payment
 
-هذه الأدوار موضحة في الـproject documentation، بما فيها اختلاف صلاحيات الـUser والـContractor والـAdmin. :chatgpt-content-reference{index="2"}
-
 ---
 
 # 🔄 System Workflow
@@ -157,7 +155,6 @@ ACCEPTED
 Login allowed
 ```
 
-هذا موثق في صفحة التحقق من البيانات في الـproject presentation. :chatgpt-content-reference{index="3"}
 
 ---
 
@@ -371,7 +368,6 @@ Move Project to Execution
 
 # 🏗️ 7. Create Construction Phases
 
-بعد قبول الـOffer، يتم إنشاء مراحل البناء المرتبطة بالمشروع/الـOffer.
 
 ### Request
 
@@ -395,7 +391,6 @@ startDate = null
 actualEndDate = null
 ```
 
-لأن المرحلة لم تبدأ ولم تنتهِ بعد. :chatgpt-content-reference{index="9"}
 
 ---
 
@@ -427,7 +422,6 @@ NOT_DONE
 IN_PROGRESS
 ```
 
-ويتم تسجيل:
 
 ```text
 startDate = Today
@@ -465,7 +459,6 @@ IN_PROGRESS
 COMPLETED
 ```
 
-ويتم تسجيل:
 
 ```text
 actualEndDate = Today
@@ -477,7 +470,6 @@ actualEndDate = Today
 
 # 🧱 10. Purchased Materials
 
-يتم تسجيل كمية المواد التي تم شراؤها أثناء المشروع.
 
 ### Request
 
@@ -514,7 +506,6 @@ surplusQuantity =
 purchasedQuantity - usedQuantity
 ```
 
-إذا تجاوزت الكمية المشتراة `plannedQuantity`، يتم إرسال Email تنبيه لمالك المشروع. :chatgpt-content-reference{index="12"}
 
 ### Example
 
@@ -817,7 +808,6 @@ to confirm the purchase. :chatgpt-content-reference{index="19"}
 | 16 | Purchase surplus | — | `/surplus-orders` |
 | 17 | Pay for order | — | Surplus order endpoint |
 
-**مهم:** في الـPDF، بعض العمليات من رقم 7 إلى 17 موضح فيها الـ**Request والـBusiness Logic والـvalidation** لكن **المسار الكامل للـEndpoint غير مكتوب**؛ لذلك ما راح أخترع مسارات لها في README. :chatgpt-content-reference{index="20"}
 
 ---
 
@@ -851,7 +841,6 @@ IN_PROGRESS
 COMPLETED
 ```
 
-مع تسجيل `startDate` عند البدء و`actualEndDate` عند الإكمال. :chatgpt-content-reference{index="21"}
 
 ## Materials
 
@@ -863,7 +852,6 @@ Used Quantity
 Surplus Quantity
 ```
 
-ولا يمكن استخدام كمية أكبر من الكمية المشتراة. :chatgpt-content-reference{index="22"}
 
 ## Surplus
 
