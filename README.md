@@ -3,119 +3,15 @@
 
 ## 1. Project Overview
 
-## 2. Main Features
+BAYTI is a digital platform designed to simplify and organize the home construction process by connecting landowners with verified contractors through a structured construction workflow.
 
-### 2.1 User & Account Verification
-- Feature description
-- API
-- Request
-- Response
-- Validation
-- Business Logic
-- Database relationship
+The platform allows users to add and manage their land, create construction projects, receive contractor offers, select a contractor, and follow the progress of construction phases and materials.
 
-### 2.2 Land Management
-- Feature description
-- API
-- Request
-- Response
-- Validation
-- Business Logic
-- Database relationship
+Contractors can browse available construction projects, submit offers, manage construction phases, and track purchased and used materials. The platform also manages surplus construction materials by allowing users to list, transfer, and purchase remaining materials.
 
-### 2.3 Construction Project Management
-- Feature description
-- API
-- Request
-- Response
-- Validation
-- Business Logic
-- Database relationship
+BAYTI also provides administrative management, email notifications for important events, and AI-supported functionality to enhance the construction management experience.
 
-### 2.4 Open Construction Projects
-...
-
-### 2.5 Contractor Offers
-...
-
-### 2.6 Accept Contractor Offer
-...
-
-### 2.7 Construction Phases
-...
-
-### 2.8 Start Construction Phase
-...
-
-### 2.9 Complete Construction Phase
-...
-
-### 2.10 Material Management
-...
-
-### 2.11 Purchased Materials
-...
-
-### 2.12 Used Materials
-...
-
-### 2.13 Surplus Materials Marketplace
-...
-
-### 2.14 Close Surplus Listing
-...
-
-### 2.15 Reopen Surplus Listing
-...
-
-### 2.16 Transfer Surplus Materials
-...
-
-### 2.17 Purchase Surplus Materials
-...
-
-### 2.18 Surplus Payment
-...
-
-### 2.19 Admin Management
-...
-
-### 2.20 Email Notifications
-...
-
-### 2.21 AI Features
-...
-
-## 3. Complete System Workflow
-
-## 4. Database Relationships
-
-## 5. Controller → Service → Repository → Database
-
-## 6. API Summary
-
-## 7. Validation & Business Rules
-
-## 8. Status Transitions
-
-## 9. Technologies
-
-## 10. Project Architecture
-
-## 11. How to Run
-
-## 12. Testing with Postman
-
-## 13. Security
-
-## 14. Future Improvements
-```
-
-لكن بما أنك تبين **"كامل منظم"**، أنا أنصح أن ما نكرر الـAPI مرة ثانية في آخر README. يعني كل Feature يكون مكتمل في مكانه.
-
-مثلاً:
-
----
+The system is built using a layered architecture that separates Controllers, Services, Repositories, and Database Entities, making the application organized, maintainable, and scalable.
 
 # 2. Main Features
 
