@@ -154,8 +154,8 @@ private final PendingContractorRepository pendingContractorRepository;
     public boolean delete(Integer id){
         User  toDelete=userRepository.findUsersById(id);
 
-        if(toDelete==null){
-            return false;
+        if(toDelete==null||toDelete.getRole().equals("ADMIN")){
+            return false;   
         }
         userRepository.delete(toDelete);
         emailService.sendEmail(
