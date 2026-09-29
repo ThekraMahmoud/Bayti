@@ -43,7 +43,7 @@ public class UserController {
         return switch (check){
             case "Invalid email or verification code"->ResponseEntity.status(400).body(new ApiResponse("Invalid email or verification code"));
             case "Verification code expired"->ResponseEntity.status(400).body(new ApiResponse("Verification code expired"));
-            case "User added successfully"->ResponseEntity.status(400).body(new ApiResponse("User added successfully"));
+            case "User added successfully"->ResponseEntity.status(200).body(new ApiResponse("User added successfully"));
             default -> ResponseEntity.status(400).body(new ApiResponse("somethings errors"));
 
         };
